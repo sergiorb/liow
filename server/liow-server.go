@@ -55,20 +55,20 @@ type ApiToken struct {
   Token string `json: "token"`
 }
 
-type LogInController struct {
+type SessionController struct {
 	session *mgo.Session
 }
 
-type LogOutController struct {
+type ScreenController struct {
 	session *mgo.Session
 }
 
-func NewLogInController(s *mgo.Session) *LogInController {
-	return &LogInController{s}
+func NewSessionController(s *mgo.Session) *SessionController {
+	return &SessionController{s}
 }
 
-func NewLogOutController(s *mgo.Session) *LogOutController {
-	return &LogOutController{s}
+func NewScreenController(s *mgo.Session) *ScreenController {
+	return &ScreenController{s}
 }
 
 func NewApiToken(r *http.Request) *ApiToken {
@@ -94,7 +94,7 @@ func (t *ApiToken) IsValid() (bool){
   return isValid
 }
 
-func (lc LogInController) CreateLogIn(w http.ResponseWriter, r *http.Request) {
+func (sc ScreenController) Lock(w http.ResponseWriter, r *http.Request) {
 
   var ap *ApiResponse
 
@@ -117,7 +117,53 @@ func (lc LogInController) CreateLogIn(w http.ResponseWriter, r *http.Request) {
   w.Write([]byte(payload))
 }
 
-func (lc LogOutController) CreateLogOut(w http.ResponseWriter, r *http.Request) {
+func (sc ScreenController) Unlock(w http.ResponseWriter, r *http.Request) {
+
+  var ap *ApiResponse
+
+	apiToken := NewApiToken(r)
+
+	if !apiToken.IsValid() {
+
+    ap = &ApiResponse{Status:"no valid token"}
+    w.WriteHeader(http.StatusBadRequest)
+
+	} else {
+
+    ap = &ApiResponse{Status:"OK"}
+    w.WriteHeader(http.StatusOK)
+  }
+
+  payload, _ := json.Marshal(&ap)
+
+  w.Header().Set("Content-Type", "application/json")
+  w.Write([]byte(payload))
+}
+
+func (sc SessionController) Login(w http.ResponseWriter, r *http.Request) {
+
+  var ap *ApiResponse
+
+	apiToken := NewApiToken(r)
+
+	if !apiToken.IsValid() {
+
+    ap = &ApiResponse{Status:"no valid token"}
+    w.WriteHeader(http.StatusBadRequest)
+
+	} else {
+
+    ap = &ApiResponse{Status:"OK"}
+    w.WriteHeader(http.StatusOK)
+  }
+
+  payload, _ := json.Marshal(&ap)
+
+  w.Header().Set("Content-Type", "application/json")
+  w.Write([]byte(payload))
+}
+
+func (sc SessionController) Logout(w http.ResponseWriter, r *http.Request) {
 
   var ap *ApiResponse
 
@@ -159,11 +205,13 @@ func main()  {
 
   r := mux.NewRouter()
 
-  logInController := NewLogInController(getMongoSession())
-  logOutController := NewLogOutController(getMongoSession())
+  sessionController := NewSessionController(getMongoSession())
+  screenController := NewScreenController(getMongoSession())
 
-  r.Handle(fmt.Sprintf("%v%v", API_PRFIX, "/log/in"), http.HandlerFunc(logInController.CreateLogIn)).Methods("POST")
-  r.Handle(fmt.Sprintf("%v%v", API_PRFIX, "/log/out"), http.HandlerFunc(logOutController.CreateLogOut)).Methods("POST")
+  r.Handle(fmt.Sprintf("%v%v", API_PRFIX, "/log/in"), http.HandlerFunc(sessionController.Login)).Methods("POST")
+  r.Handle(fmt.Sprintf("%v%v", API_PRFIX, "/log/out"), http.HandlerFunc(sessionController.Logout)).Methods("POST")
+  r.Handle(fmt.Sprintf("%v%v", API_PRFIX, "/screen/lock"), http.HandlerFunc(screenController.Lock)).Methods("POST")
+  r.Handle(fmt.Sprintf("%v%v", API_PRFIX, "/screen/unlock"), http.HandlerFunc(screenController.Unlock)).Methods("POST")
 
   log.Info("Listening...")
   http.ListenAndServe(fmt.Sprintf("%v:%v", HOST, PORT), r)
