@@ -1,0 +1,17 @@
+{
+  "server": {
+    "host": "127.0.0.1",
+    "port": "8081",
+    "urlPrefix": "/liow/api"
+  },
+  "api": {
+    "apiTokenName": "liow-token"
+  },
+  "database": {
+    "host": "127.0.0.1",
+    "port": "27017"
+  },
+  "logger": {
+    "level": "info"
+  }
+}
