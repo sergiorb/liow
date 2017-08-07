@@ -9,7 +9,8 @@ import (
 
 type Token struct {
     Id            bson.ObjectId "_id, omitempty"
-    CreationDate  time.Time     `json: "creationDate"`
+    creationUser  User          `json: "creationUser"`
+    creationDate  time.Time     `json: "creationDate"`
     data          string        `json: "data"`
 }
 
@@ -18,7 +19,7 @@ type TokenDAO struct {
   session *mgo.Session
 }
 
-func NewTokenDAO(session *mgo.Session) *TokenDAO {
+func NewTokenDao(session *mgo.Session) *TokenDAO {
 
   return &TokenDAO{
     session: session.Copy(),
@@ -40,7 +41,6 @@ func (td *TokenDAO) Read(id string) (Token, error) {
 
   return token, err
 }
-
 
 /*
 func NewToken()  {

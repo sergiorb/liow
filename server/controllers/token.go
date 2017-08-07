@@ -6,20 +6,19 @@ import (
   "github.com/sergiorb/liow/server/entities/api"
 	"encoding/json"
 	"gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
+  "gopkg.in/mgo.v2/bson"
 	"net/http"
-	 "fmt"
 )
 
-type UserController struct {
+type TokenController struct {
 	session *mgo.Session
 }
 
-func NewUserController(s *mgo.Session) *UserController {
-	return &UserController{s}
+func NewTokenController(s *mgo.Session) *TokenController {
+	return &TokenController{s}
 }
 
-func (uc UserController) Read(w http.ResponseWriter, r *http.Request) {
+func (tc TokenController) Read(w http.ResponseWriter, r *http.Request) {
 
 	var readResponse *api.ReadResponse
   vars := mux.Vars(r)
@@ -33,19 +32,22 @@ func (uc UserController) Read(w http.ResponseWriter, r *http.Request) {
 
 	} else {
 
-		userDao := models.NewUserDao(uc.session)
-	  defer userDao.CloseSession()
+		tokenDao := models.NewTokenDao(tc.session)
+	  defer tokenDao.CloseSession()
 
-		user, err := userDao.Read(id)
+		token, err := tokenDao.Read(id)
 
 		if err != nil {
 
-			readResponse = &api.ReadResponse{Message:"User not found"}
+			readResponse = &api.ReadResponse{Message:"Token not found"}
 			w.WriteHeader(http.StatusNotFound)
 
 		} else {
 
-			readResponse = &api.ReadResponse{Message:fmt.Sprintf("User %v exist", user.Name)}
+			readResponse = &api.ReadResponse{
+        Objects: []interface{}{token},
+      }
+
 			w.WriteHeader(http.StatusOK)
 		}
 	}

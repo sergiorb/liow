@@ -26,11 +26,20 @@ func getMongoSession() *mgo.Session {
 func init() {
 
   userController := controllers.NewUserController(getMongoSession())
+  tokenController := controllers.NewTokenController(getMongoSession())
+  registerController := controllers.NewTokenController(getMongoSession())
   //sessionController := controllers.NewSessionController(getMongoSession())
   //screenController := controllers.NewScreenController(getMongoSession())
 
   Router.Handle(fmt.Sprintf("%v%v", conf.GetFullApiPrefix(), "/user/{id}"),
     http.HandlerFunc(userController.Read)).Methods("GET")
+
+  Router.Handle(fmt.Sprintf("%v%v", conf.GetFullApiPrefix(), "/token/{id}"),
+    http.HandlerFunc(tokenController.Read)).Methods("GET")
+
+  Router.Handle(fmt.Sprintf("%v%v", conf.GetFullApiPrefix(), "/register/{id}"),
+    http.HandlerFunc(registerController.Read)).Methods("GET")
+
   /*
   Router.Handle(fmt.Sprintf("%v%v", conf.GetFullApiPrefix(), "/session/login"),
     http.HandlerFunc(sessionController.Login)).Methods("POST")

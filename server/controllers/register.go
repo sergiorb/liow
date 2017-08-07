@@ -6,20 +6,19 @@ import (
   "github.com/sergiorb/liow/server/entities/api"
 	"encoding/json"
 	"gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
+  "gopkg.in/mgo.v2/bson"
 	"net/http"
-	 "fmt"
 )
 
-type UserController struct {
+type RegisterController struct {
 	session *mgo.Session
 }
 
-func NewUserController(s *mgo.Session) *UserController {
-	return &UserController{s}
+func NewRegisterController(s *mgo.Session) *RegisterController {
+	return &RegisterController{s}
 }
 
-func (uc UserController) Read(w http.ResponseWriter, r *http.Request) {
+func (rc RegisterController) Read(w http.ResponseWriter, r *http.Request) {
 
 	var readResponse *api.ReadResponse
   vars := mux.Vars(r)
@@ -33,19 +32,22 @@ func (uc UserController) Read(w http.ResponseWriter, r *http.Request) {
 
 	} else {
 
-		userDao := models.NewUserDao(uc.session)
-	  defer userDao.CloseSession()
+		registerDao := models.NewRegisterDao(rc.session)
+	  defer registerDao.CloseSession()
 
-		user, err := userDao.Read(id)
+		register, err := registerDao.Read(id)
 
 		if err != nil {
 
-			readResponse = &api.ReadResponse{Message:"User not found"}
+			readResponse = &api.ReadResponse{Message:"Register not found"}
 			w.WriteHeader(http.StatusNotFound)
 
 		} else {
 
-			readResponse = &api.ReadResponse{Message:fmt.Sprintf("User %v exist", user.Name)}
+			readResponse = &api.ReadResponse{
+        Objects: []interface{}{register},
+      }
+
 			w.WriteHeader(http.StatusOK)
 		}
 	}
