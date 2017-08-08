@@ -8,11 +8,11 @@ import (
 )
 
 type User struct {
-    Id            bson.ObjectId "_id, omitempty"
-    creationUser  *User         `json: "creationUser"`
-    creationDate  time.Time     `json: "creationDate"`
-    Name          string        `json: "name"`
-    Surname       string        `json: "surname"`
+    Id            bson.ObjectId "_id,omitempty"
+    creationUser  *User         `json:"creationUser"`
+    creationDate  time.Time     `json:"creationDate"`
+    Name          string        `json:"name"`
+    Surname       string        `json:"surname"`
 }
 
 type UserDAO struct {

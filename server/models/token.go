@@ -8,10 +8,10 @@ import (
 )
 
 type Token struct {
-    Id            bson.ObjectId "_id, omitempty"
-    creationUser  User          `json: "creationUser"`
-    creationDate  time.Time     `json: "creationDate"`
-    data          string        `json: "data"`
+    Id            bson.ObjectId "_id,omitempty"
+    creationUser  bson.ObjectId `json:"creationUser"`
+    creationDate  time.Time     `json:"creationDate"`
+    Token         string        `json:"token"`
 }
 
 type TokenDAO struct {
@@ -38,6 +38,17 @@ func (td *TokenDAO) Read(id string) (Token, error) {
   c := td.session.DB(conf.Database.Name).C(TOKEN_COLLECTION_NAME)
 
   err := c.Find(bson.M{"_id": bson.ObjectIdHex(id)}).One(&token)
+
+  return token, err
+}
+
+func (td *TokenDAO) GetByToken(tokenString string) (Token, error) {
+
+  var token Token
+
+  c := td.session.DB(conf.Database.Name).C(TOKEN_COLLECTION_NAME)
+
+  err := c.Find(bson.M{"token": tokenString}).One(&token)
 
   return token, err
 }

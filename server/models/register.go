@@ -2,16 +2,15 @@ package models
 
 import (
   "time"
-  //"fmt"
   "gopkg.in/mgo.v2"
   "gopkg.in/mgo.v2/bson"
 )
 
 type Register struct {
-    Id            bson.ObjectId "_id, omitempty"
-    creationToken Token         `json: "creationToken"`
-    creationDate  time.Time     `json: "creationDate"`
-    Type          string        `json: "type"`
+    Id            bson.ObjectId `json:"id" bson:"_id,omitempty"`
+    Token         string        `json:"token"`
+    CreationDate  time.Time     `json:"creationDate"`
+    Data          interface{}   `json:"data"`
 }
 
 type RegisterDAO struct {
@@ -31,6 +30,16 @@ func (rd *RegisterDAO) CloseSession() {
   rd.session.Close()
 }
 
+func (rd *RegisterDAO) Create(register *Register) error {
+
+  register.Id = bson.NewObjectId()
+  register.CreationDate = time.Now()
+
+  c := rd.session.DB(conf.Database.Name).C(REGISTER_COLLECTION_NAME)
+
+  return c.Insert(&register)
+}
+
 func (rd *RegisterDAO) Read(id string) (Register, error) {
 
   var register Register
@@ -40,4 +49,9 @@ func (rd *RegisterDAO) Read(id string) (Register, error) {
   err := c.Find(bson.M{"_id": bson.ObjectIdHex(id)}).One(&register)
 
   return register, err
+}
+
+func (r *Register) GetErrors() map[string]error {
+
+  return nil;
 }

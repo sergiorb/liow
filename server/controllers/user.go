@@ -8,7 +8,6 @@ import (
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"net/http"
-	 "fmt"
 )
 
 type UserController struct {
@@ -45,7 +44,10 @@ func (uc UserController) Read(w http.ResponseWriter, r *http.Request) {
 
 		} else {
 
-			readResponse = &api.ReadResponse{Message:fmt.Sprintf("User %v exist", user.Name)}
+			readResponse = &api.ReadResponse{
+				Objects: []interface{}{user},
+			}
+
 			w.WriteHeader(http.StatusOK)
 		}
 	}
