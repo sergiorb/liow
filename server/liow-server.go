@@ -14,8 +14,15 @@ var log = logging.MustGetLogger("log-in-out-watcher server")
 
 func main()  {
 
-  log.Info(fmt.Sprintf("Starting log-in-out-watcher server v%v on %v:%v", conf.Api.Version, conf.Server.Host, conf.Server.Port))
+  log.Info(fmt.Sprintf("Starting log-in-out-watcher server v%v on %v:%v",
+    conf.Api.Version,
+    conf.Server.Host,
+    conf.Server.Port))
+
   log.Info("Listening...")
 
-  http.ListenAndServe(fmt.Sprintf("%v:%v", conf.Server.Host, conf.Server.Port), router.Router)
+  http.ListenAndServe(fmt.Sprintf("%v:%v",
+    conf.Server.Host,
+    conf.Server.Port),
+    router.Router)
 }

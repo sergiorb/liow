@@ -3,6 +3,7 @@ package router
 import (
   "net/http"
   "github.com/sergiorb/liow/server/entities/api"
+  "github.com/sergiorb/liow/server/models"
   "encoding/json"
   "strings"
 )
@@ -24,7 +25,25 @@ func checkAPIToken(h http.Handler) http.Handler {
 
       return // don't call original handler
     }
-    
+
+    tokenDao := models.NewTokenDao(getMongoSession())
+	  defer tokenDao.CloseSession()
+
+    _, err := tokenDao.GetByToken(token)
+
+    if err != nil {
+
+      payload, _ := json.Marshal(api.AuthResponse{
+        Message:  "Unauthorized",
+      })
+
+      w.Header().Set("Content-Type", "application/json")
+      w.WriteHeader(http.StatusUnauthorized)
+      w.Write([]byte(payload))
+
+      return // don't call original handler
+    }
+
     h.ServeHTTP(w, r)
   })
 }

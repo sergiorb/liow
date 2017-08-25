@@ -29,6 +29,8 @@ func init() {
   //userController := controllers.NewUserController(getMongoSession())
   //tokenController := controllers.NewTokenController(getMongoSession())
   registerController := controllers.NewRegisterController(getMongoSession())
+  screenController := controllers.NewScreenController(getMongoSession())
+  sessionController := controllers.NewSessionController(getMongoSession())
 
   /*Router.Handle(fmt.Sprintf("%v%v", conf.GetFullApiPrefix(), "/user/{id}"),
     http.HandlerFunc(userController.Read)).Methods("GET")*/
@@ -38,4 +40,16 @@ func init() {
 
   Router.Handle(fmt.Sprintf("%v%v", conf.GetFullApiPrefix(), "/register"),
     checkAPIToken(http.HandlerFunc(registerController.Create))).Methods("POST")
+
+  Router.Handle(fmt.Sprintf("%v%v", conf.GetFullApiPrefix(), "/screen/lock"),
+    checkAPIToken(http.HandlerFunc(screenController.Lock))).Methods("POST")
+
+  Router.Handle(fmt.Sprintf("%v%v", conf.GetFullApiPrefix(), "/screen/unlock"),
+    checkAPIToken(http.HandlerFunc(screenController.Unlock))).Methods("POST")
+
+  Router.Handle(fmt.Sprintf("%v%v", conf.GetFullApiPrefix(), "/session/login"),
+    checkAPIToken(http.HandlerFunc(sessionController.Login))).Methods("POST")
+
+  Router.Handle(fmt.Sprintf("%v%v", conf.GetFullApiPrefix(), "/session/logout"),
+    checkAPIToken(http.HandlerFunc(sessionController.Logout))).Methods("POST")
 }

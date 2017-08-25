@@ -2,7 +2,6 @@ package models
 
 import (
   "time"
-  //"fmt"
   "gopkg.in/mgo.v2"
   "gopkg.in/mgo.v2/bson"
 )
@@ -42,31 +41,3 @@ func (ud *UserDAO) Read(id string) (User, error) {
 
   return user, err
 }
-
-/*func (ud *UserDAO) Save(u *User) User, error {
-
-  c := ud.session.DB(conf.Database.Name).C(USER_COLLECTION_NAME)
-  err := c.Insert(&u)
-
-  return u, err
-}*/
-
-/*
-func NewUser(name string, surname string)  {
-
-  now := Time.now()
-
-  return &User{
-    creationDate: now
-    updateDate: now
-    name: name
-    surname: surname
-  }
-}
-
-func (u *User) Update(name string, surname string)  {
-
-  u.updateDate = Time.now()
-  u.name = name
-  u.surname = surname
-}*/

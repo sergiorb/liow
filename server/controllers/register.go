@@ -48,51 +48,33 @@ func (rc RegisterController) Create(w http.ResponseWriter, r *http.Request) {
 
 	} else {
 
-		tokenDao := models.NewTokenDao(rc.session)
-		defer tokenDao.CloseSession()
+		registerDao := models.NewRegisterDao(rc.session)
+		defer registerDao.CloseSession()
 
-		token, err := tokenDao.GetByToken(r.Header.Get(conf.Api.ApiTokenName))
+		register.Token = r.Header.Get(conf.Api.ApiTokenName)
 
-		if err != nil {
+		err := registerDao.Create(&register)
 
-			createResponse = &api.CreationResponse{
-        Objects:  []interface{}{register},
-        Message:  "No valid token",
-        Errors:   err.Error(),
-      }
+	  if err != nil {
 
-      w.WriteHeader(http.StatusUnauthorized)
+			createResponse = &api.CreationResponse {
+				Objects:  []interface{}{register},
+				Message:  "Error saving register",
+	      Errors:   err.Error(),
+			}
+
+	    w.WriteHeader(http.StatusBadRequest)
 
 		} else {
 
-			registerDao := models.NewRegisterDao(rc.session)
-		  defer registerDao.CloseSession()
+			createResponse = &api.CreationResponse{
+	    	Objects:  []interface{}{register},
+			}
 
-			register.Token = token.Token
-
-			err := registerDao.Create(&register)
-
-	    if err != nil {
-
-	      createResponse = &api.CreationResponse{
-	        Objects:  []interface{}{register},
-	        Message:  "No valid register",
-	        Errors:   err.Error(),
-	      }
-
-	      w.WriteHeader(http.StatusBadRequest)
-
-	    } else {
-
-	      createResponse = &api.CreationResponse{
-	        Objects:  []interface{}{register},
-	      }
-
-	      w.WriteHeader(http.StatusOK)
-	    }
+	  	w.WriteHeader(http.StatusOK)
 		}
 	}
-
+	
 	payload, _ := json.Marshal(&createResponse)
 
 	w.Header().Set("Content-Type", "application/json")
