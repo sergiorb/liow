@@ -1,16 +1,12 @@
 package controllers
 
 import (
-	// "github.com/sergiorb/liow/server/models"
-  "github.com/sergiorb/liow/server/entities"
+	"github.com/sergiorb/liow/server/models"
+	"github.com/sergiorb/liow/server/entities/api"
 	"encoding/json"
 	"gopkg.in/mgo.v2"
 	"net/http"
-	"github.com/op/go-logging"
-	"fmt"
 )
-
-var log = logging.MustGetLogger("log-in-out-watcher server")
 
 type ScreenController struct {
 	session *mgo.Session
@@ -22,24 +18,36 @@ func NewScreenController(s *mgo.Session) *ScreenController {
 
 func (sc ScreenController) Lock(w http.ResponseWriter, r *http.Request) {
 
-  var ap *entities.ApiResponse
+  var createResponse *api.CreationResponse
 
-	apiToken := entities.NewApiToken(r)
+	register :=  models.Register{
+		Token: r.Header.Get(conf.Api.ApiTokenName),
+		Data: map[string]string{"event": SCREEN, "action": LOCK},
+	}
 
-	if !apiToken.IsValid() {
+  registerDao := models.NewRegisterDao(sc.session)
+	defer registerDao.CloseSession()
 
-    ap = &entities.ApiResponse{Status:"no valid token"}
-    w.WriteHeader(http.StatusBadRequest)
+	err := registerDao.Create(&register)
 
-		log.Warning(fmt.Sprintf("No valid token: %v", apiToken.Token))
+	if err != nil {
+
+		createResponse = &api.CreationResponse {
+			Objects:  []interface{}{register},
+			Message:  "Error saving register",
+			Errors:   err.Error(),
+		}
+
+		w.WriteHeader(http.StatusBadRequest)
 
 	} else {
 
-    ap = &entities.ApiResponse{Status:"OK"}
-    w.WriteHeader(http.StatusOK)
-  }
+		createResponse = &api.CreationResponse{
+			Objects:  []interface{}{register},
+		}
+	}
 
-  payload, _ := json.Marshal(&ap)
+  payload, _ := json.Marshal(&createResponse)
 
   w.Header().Set("Content-Type", "application/json")
   w.Write([]byte(payload))
@@ -47,24 +55,36 @@ func (sc ScreenController) Lock(w http.ResponseWriter, r *http.Request) {
 
 func (sc ScreenController) Unlock(w http.ResponseWriter, r *http.Request) {
 
-  var ap *entities.ApiResponse
+  var createResponse *api.CreationResponse
 
-	apiToken := entities.NewApiToken(r)
+	register :=  models.Register{
+		Token: r.Header.Get(conf.Api.ApiTokenName),
+		Data: map[string]string{"event": SCREEN, "action": UNLOCK},
+	}
 
-	if !apiToken.IsValid() {
+  registerDao := models.NewRegisterDao(sc.session)
+	defer registerDao.CloseSession()
 
-    ap = &entities.ApiResponse{Status:"no valid token"}
-    w.WriteHeader(http.StatusBadRequest)
+	err := registerDao.Create(&register)
 
-		log.Warning(fmt.Sprintf("No valid token: %v", apiToken.Token))
+	if err != nil {
+
+		createResponse = &api.CreationResponse {
+			Objects:  []interface{}{register},
+			Message:  "Error saving register",
+			Errors:   err.Error(),
+		}
+
+		w.WriteHeader(http.StatusBadRequest)
 
 	} else {
 
-    ap = &entities.ApiResponse{Status:"OK"}
-    w.WriteHeader(http.StatusOK)
-  }
+		createResponse = &api.CreationResponse{
+			Objects:  []interface{}{register},
+		}
+	}
 
-  payload, _ := json.Marshal(&ap)
+  payload, _ := json.Marshal(&createResponse)
 
   w.Header().Set("Content-Type", "application/json")
   w.Write([]byte(payload))

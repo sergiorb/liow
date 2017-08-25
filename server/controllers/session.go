@@ -1,12 +1,11 @@
 package controllers
 
 import (
-	// "github.com/sergiorb/liow/server/models"
-  "github.com/sergiorb/liow/server/entities"
+	"github.com/sergiorb/liow/server/models"
+	"github.com/sergiorb/liow/server/entities/api"
 	"encoding/json"
 	"gopkg.in/mgo.v2"
 	"net/http"
-	"fmt"
 )
 
 type SessionController struct {
@@ -19,24 +18,36 @@ func NewSessionController(s *mgo.Session) *SessionController {
 
 func (sc SessionController) Login(w http.ResponseWriter, r *http.Request) {
 
-  var ap *entities.ApiResponse
+	var createResponse *api.CreationResponse
 
-	apiToken := entities.NewApiToken(r)
+	register :=  models.Register{
+		Token: r.Header.Get(conf.Api.ApiTokenName),
+		Data: map[string]string{"event": SESSION, "action": LOGIN},
+	}
 
-	if !apiToken.IsValid() {
+	registerDao := models.NewRegisterDao(sc.session)
+	defer registerDao.CloseSession()
 
-    ap = &entities.ApiResponse{Status:"no valid token"}
-    w.WriteHeader(http.StatusBadRequest)
+	err := registerDao.Create(&register)
 
-		log.Warning(fmt.Sprintf("No valid token: %v", apiToken.Token))
+	if err != nil {
+
+		createResponse = &api.CreationResponse {
+			Objects:  []interface{}{register},
+			Message:  "Error saving register",
+			Errors:   err.Error(),
+		}
+
+		w.WriteHeader(http.StatusBadRequest)
 
 	} else {
 
-    ap = &entities.ApiResponse{Status:"OK"}
-    w.WriteHeader(http.StatusOK)
-  }
+		createResponse = &api.CreationResponse{
+			Objects:  []interface{}{register},
+		}
+	}
 
-  payload, _ := json.Marshal(&ap)
+  payload, _ := json.Marshal(&createResponse)
 
   w.Header().Set("Content-Type", "application/json")
   w.Write([]byte(payload))
@@ -44,24 +55,36 @@ func (sc SessionController) Login(w http.ResponseWriter, r *http.Request) {
 
 func (sc SessionController) Logout(w http.ResponseWriter, r *http.Request) {
 
-  var ap *entities.ApiResponse
+	var createResponse *api.CreationResponse
 
-	apiToken := entities.NewApiToken(r)
+	register :=  models.Register{
+		Token: r.Header.Get(conf.Api.ApiTokenName),
+		Data: map[string]string{"event": SESSION, "action": LOGOUT},
+	}
 
-	if !apiToken.IsValid() {
+	registerDao := models.NewRegisterDao(sc.session)
+	defer registerDao.CloseSession()
 
-    ap = &entities.ApiResponse{Status:"no valid token"}
-    w.WriteHeader(http.StatusBadRequest)
+	err := registerDao.Create(&register)
 
-		log.Warning(fmt.Sprintf("No valid token: %v", apiToken.Token))
+	if err != nil {
+
+		createResponse = &api.CreationResponse {
+			Objects:  []interface{}{register},
+			Message:  "Error saving register",
+			Errors:   err.Error(),
+		}
+
+		w.WriteHeader(http.StatusBadRequest)
 
 	} else {
 
-    ap = &entities.ApiResponse{Status:"OK"}
-    w.WriteHeader(http.StatusOK)
-  }
+		createResponse = &api.CreationResponse{
+			Objects:  []interface{}{register},
+		}
+	}
 
-  payload, _ := json.Marshal(&ap)
+  payload, _ := json.Marshal(&createResponse)
 
   w.Header().Set("Content-Type", "application/json")
   w.Write([]byte(payload))

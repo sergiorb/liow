@@ -25,22 +25,18 @@ func getMongoSession() *mgo.Session {
 
 func init() {
 
-  userController := controllers.NewUserController(getMongoSession())
-  //sessionController := controllers.NewSessionController(getMongoSession())
-  //screenController := controllers.NewScreenController(getMongoSession())
-
-  Router.Handle(fmt.Sprintf("%v%v", conf.GetFullApiPrefix(), "/user/{id}"),
-    http.HandlerFunc(userController.Read)).Methods("GET")
-  /*
-  Router.Handle(fmt.Sprintf("%v%v", conf.GetFullApiPrefix(), "/session/login"),
-    http.HandlerFunc(sessionController.Login)).Methods("POST")
-
-  Router.Handle(fmt.Sprintf("%v%v", conf.GetFullApiPrefix(), "/session/logout"),
-    http.HandlerFunc(sessionController.Logout)).Methods("POST")
+  screenController := controllers.NewScreenController(getMongoSession())
+  sessionController := controllers.NewSessionController(getMongoSession())
 
   Router.Handle(fmt.Sprintf("%v%v", conf.GetFullApiPrefix(), "/screen/lock"),
-    http.HandlerFunc(screenController.Lock)).Methods("POST")
+    checkAPIToken(http.HandlerFunc(screenController.Lock))).Methods("POST")
 
   Router.Handle(fmt.Sprintf("%v%v", conf.GetFullApiPrefix(), "/screen/unlock"),
-    http.HandlerFunc(screenController.Unlock)).Methods("POST")*/
+    checkAPIToken(http.HandlerFunc(screenController.Unlock))).Methods("POST")
+
+  Router.Handle(fmt.Sprintf("%v%v", conf.GetFullApiPrefix(), "/session/login"),
+    checkAPIToken(http.HandlerFunc(sessionController.Login))).Methods("POST")
+
+  Router.Handle(fmt.Sprintf("%v%v", conf.GetFullApiPrefix(), "/session/logout"),
+    checkAPIToken(http.HandlerFunc(sessionController.Logout))).Methods("POST")
 }
