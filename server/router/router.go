@@ -8,7 +8,6 @@ import (
   "net/http"
   "fmt"
   "github.com/op/go-logging"
-  //"strings"
 )
 
 var conf = config.Load()
@@ -26,20 +25,8 @@ func getMongoSession() *mgo.Session {
 
 func init() {
 
-  //userController := controllers.NewUserController(getMongoSession())
-  //tokenController := controllers.NewTokenController(getMongoSession())
-  registerController := controllers.NewRegisterController(getMongoSession())
   screenController := controllers.NewScreenController(getMongoSession())
   sessionController := controllers.NewSessionController(getMongoSession())
-
-  /*Router.Handle(fmt.Sprintf("%v%v", conf.GetFullApiPrefix(), "/user/{id}"),
-    http.HandlerFunc(userController.Read)).Methods("GET")*/
-
-  /*Router.Handle(fmt.Sprintf("%v%v", conf.GetFullApiPrefix(), "/token/{id}"),
-    http.HandlerFunc(tokenController.Read)).Methods("GET")*/
-
-  Router.Handle(fmt.Sprintf("%v%v", conf.GetFullApiPrefix(), "/register"),
-    checkAPIToken(http.HandlerFunc(registerController.Create))).Methods("POST")
 
   Router.Handle(fmt.Sprintf("%v%v", conf.GetFullApiPrefix(), "/screen/lock"),
     checkAPIToken(http.HandlerFunc(screenController.Lock))).Methods("POST")
