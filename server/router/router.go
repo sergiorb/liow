@@ -25,8 +25,13 @@ func getMongoSession() *mgo.Session {
 
 func init() {
 
+  liowController := controllers.NewLiowController()
+
   screenController := controllers.NewScreenController(getMongoSession())
   sessionController := controllers.NewSessionController(getMongoSession())
+
+  Router.Handle(fmt.Sprintf("%v%v", conf.GetFullApiPrefix(), "/app/ping"),
+    http.HandlerFunc(liowController.Ping)).Methods("GET")
 
   Router.Handle(fmt.Sprintf("%v%v", conf.GetFullApiPrefix(), "/screen/lock"),
     checkAPIToken(http.HandlerFunc(screenController.Lock))).Methods("POST")
