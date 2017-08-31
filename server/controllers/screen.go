@@ -3,9 +3,11 @@ package controllers
 import (
 	"github.com/sergiorb/liow/server/models"
 	"github.com/sergiorb/liow/server/entities/api"
+	"github.com/sergiorb/liow/server/utils"
 	"encoding/json"
 	"gopkg.in/mgo.v2"
 	"net/http"
+	"fmt"
 )
 
 type ScreenController struct {
@@ -20,8 +22,12 @@ func (sc ScreenController) Lock(w http.ResponseWriter, r *http.Request) {
 
   var createResponse *api.CreationResponse
 
+	requestContext := utils.GetRequestContext(r)
+
+	log.Debug(fmt.Sprintf("Calling for token: %v ", requestContext.Token.Data))
+
 	register :=  models.Register{
-		Token: r.Header.Get(conf.Api.ApiTokenName),
+		Token: requestContext.Token,
 		Data: map[string]string{"event": SCREEN, "action": LOCK},
 	}
 
@@ -57,8 +63,12 @@ func (sc ScreenController) Unlock(w http.ResponseWriter, r *http.Request) {
 
   var createResponse *api.CreationResponse
 
+	requestContext := utils.GetRequestContext(r)
+
+	log.Debug(fmt.Sprintf("Calling for token: %v ", requestContext.Token.Data))
+
 	register :=  models.Register{
-		Token: r.Header.Get(conf.Api.ApiTokenName),
+		Token: requestContext.Token,
 		Data: map[string]string{"event": SCREEN, "action": UNLOCK},
 	}
 
