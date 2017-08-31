@@ -7,7 +7,8 @@ import (
 )
 
 const (
-  API_VERSION = "0.1"
+  API_VERSION         = "0.1"
+  REQUEST_CONTEXT_KEY = "requestContextKey"
 )
 
 type Server struct {

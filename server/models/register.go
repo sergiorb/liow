@@ -8,7 +8,7 @@ import (
 
 type Register struct {
     Id            bson.ObjectId `json:"id" bson:"_id,omitempty"`
-    Token         string        `json:"token"`
+    Token         Token         `json:"token"`
     CreationDate  time.Time     `json:"creationDate"`
     Data          interface{}   `json:"data"`
 }

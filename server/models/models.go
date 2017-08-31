@@ -7,7 +7,6 @@ import (
 
 const (
   TOKEN_COLLECTION_NAME = "token"
-  USER_COLLECTION_NAME = "user"
   REGISTER_COLLECTION_NAME = "register"
 )
 

@@ -2,16 +2,15 @@ package models
 
 import (
   "time"
-  //"fmt"
   "gopkg.in/mgo.v2"
   "gopkg.in/mgo.v2/bson"
 )
 
 type Token struct {
     Id            bson.ObjectId "_id,omitempty"
-    creationUser  bson.ObjectId `json:"creationUser"`
     creationDate  time.Time     `json:"creationDate"`
-    Token         string        `json:"token"`
+    Data          string        `json:"data"`
+    Email         string        `json:"email"`
 }
 
 type TokenDAO struct {
@@ -42,42 +41,13 @@ func (td *TokenDAO) Read(id string) (Token, error) {
   return token, err
 }
 
-func (td *TokenDAO) GetByToken(tokenString string) (Token, error) {
+func (td *TokenDAO) GetByData(dataString string) (Token, error) {
 
   var token Token
 
   c := td.session.DB(conf.Database.Name).C(TOKEN_COLLECTION_NAME)
 
-  err := c.Find(bson.M{"token": tokenString}).One(&token)
+  err := c.Find(bson.M{"data": dataString}).One(&token)
 
   return token, err
 }
-
-/*
-func NewToken()  {
-
-  now := Time.now()
-
-  return &User{
-    CreationDate: now
-    UpdateDate: now
-    Name: name
-    Surname: surname
-  }
-}
-
-func FindByData(data string) {
-
-}
-
-func (t *Token) isRegistered(session *mgo.Session) bool, error {
-
-  var dbToken Token
-
-  c := session.DB(conf.Database.Name).C(TOKEN_DB_COLLECTION)
-
-  err := c.Find(bson.M{"data": t.data}).One(&dbToken)
-
-  return dbToken != nil, err
-}
-*/
