@@ -3,8 +3,9 @@ package router
 import (
   "github.com/gorilla/mux"
   "github.com/sergiorb/liow/server/controllers"
+  "github.com/sergiorb/liow/server/entities/authorization"
   "github.com/sergiorb/liow/server/config"
-  "gopkg.in/mgo.v2"
+  "github.com/sergiorb/liow/server/models"
   "net/http"
   "fmt"
   "github.com/op/go-logging"
@@ -14,34 +15,25 @@ var conf = config.Load()
 var log = logging.MustGetLogger("log-in-out-watcher server")
 var Router = mux.NewRouter()
 
-func getMongoSession() *mgo.Session {
-
-	session, err := mgo.Dial(conf.Database.GetUrl())
-
-	if err != nil { panic("Can't dial database") }
-
-	return session
-}
-
 func init() {
 
   liowController := controllers.NewLiowController()
 
-  screenController := controllers.NewScreenController(getMongoSession())
-  sessionController := controllers.NewSessionController(getMongoSession())
+  screenController := controllers.NewScreenController(models.GetMongoSession())
+  sessionController := controllers.NewSessionController(models.GetMongoSession())
 
   Router.Handle(fmt.Sprintf("%v%v", conf.GetFullApiPrefix(), "/app/ping"),
     http.HandlerFunc(liowController.Ping)).Methods("GET")
 
   Router.Handle(fmt.Sprintf("%v%v", conf.GetFullApiPrefix(), "/screen/lock"),
-    checkAPIToken(http.HandlerFunc(screenController.Lock))).Methods("POST")
+    withAuth(withRole(authorization.ROLE_API_CLIENT, http.HandlerFunc(screenController.Lock)))).Methods("POST")
 
   Router.Handle(fmt.Sprintf("%v%v", conf.GetFullApiPrefix(), "/screen/unlock"),
-    checkAPIToken(http.HandlerFunc(screenController.Unlock))).Methods("POST")
+    withAuth(withRole(authorization.ROLE_API_CLIENT, http.HandlerFunc(screenController.Unlock)))).Methods("POST")
 
   Router.Handle(fmt.Sprintf("%v%v", conf.GetFullApiPrefix(), "/session/login"),
-    checkAPIToken(http.HandlerFunc(sessionController.Login))).Methods("POST")
+    withAuth(withRole(authorization.ROLE_API_CLIENT, http.HandlerFunc(sessionController.Login)))).Methods("POST")
 
   Router.Handle(fmt.Sprintf("%v%v", conf.GetFullApiPrefix(), "/session/logout"),
-    checkAPIToken(http.HandlerFunc(sessionController.Logout))).Methods("POST")
+    withAuth(withRole(authorization.ROLE_API_CLIENT, http.HandlerFunc(sessionController.Logout)))).Methods("POST")
 }

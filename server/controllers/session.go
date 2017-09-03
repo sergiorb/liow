@@ -7,7 +7,6 @@ import (
 	"encoding/json"
 	"gopkg.in/mgo.v2"
 	"net/http"
-	"fmt"
 )
 
 type SessionController struct {
@@ -23,8 +22,6 @@ func (sc SessionController) Login(w http.ResponseWriter, r *http.Request) {
 	var createResponse *api.CreationResponse
 
 	requestContext := utils.GetRequestContext(r)
-
-	log.Debug(fmt.Sprintf("Calling for token: %v ", requestContext.Token.Data))
 
 	register :=  models.Register{
 		Token: requestContext.Token,
@@ -64,8 +61,6 @@ func (sc SessionController) Logout(w http.ResponseWriter, r *http.Request) {
 	var createResponse *api.CreationResponse
 
 	requestContext := utils.GetRequestContext(r)
-
-	log.Debug(fmt.Sprintf("Calling for token: %v ", requestContext.Token.Data))
 
 	register :=  models.Register{
 		Token: requestContext.Token,

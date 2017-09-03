@@ -2,9 +2,18 @@ package middleware
 
 import (
   "github.com/sergiorb/liow/server/models"
+  "github.com/sergiorb/liow/server/entities/authorization"
 )
 
 type RequestContext struct {
 
-    Token   models.Token
+  Loaded  bool
+  Token   models.Token
+  Role    authorization.Role
+}
+
+
+func (rc *RequestContext) IsAuthenticated() bool {
+
+  return rc.Loaded
 }
