@@ -11,6 +11,7 @@ type Token struct {
     creationDate  time.Time     `json:"creationDate"`
     Data          string        `json:"data"`
     Email         string        `json:"email"`
+    Role          string
 }
 
 type TokenDAO struct {
@@ -48,6 +49,17 @@ func (td *TokenDAO) GetByData(dataString string) (Token, error) {
   c := td.session.DB(conf.Database.Name).C(TOKEN_COLLECTION_NAME)
 
   err := c.Find(bson.M{"data": dataString}).One(&token)
+
+  return token, err
+}
+
+func (td *TokenDAO) GetByEmail(email string) (Token, error) {
+
+  var token Token
+
+  c := td.session.DB(conf.Database.Name).C(TOKEN_COLLECTION_NAME)
+
+  err := c.Find(bson.M{"email": email}).One(&token)
 
   return token, err
 }
